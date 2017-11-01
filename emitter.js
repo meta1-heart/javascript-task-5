@@ -4,7 +4,7 @@
  * Сделано задание на звездочку
  * Реализованы методы several и through
  */
-getEmitter.isStar = false;
+getEmitter.isStar = true;
 module.exports = getEmitter;
 
 /**
@@ -88,7 +88,7 @@ function getEmitter() {
             let eventsNames = getEventsNames(eventName);
             subscriptions.filter(subscription => eventsNames
                 .includes(subscription.eventName))
-                .sort((sub1, sub2) => (sub1.eventName.length - sub2.eventName.length))
+                .sort((sub1, sub2) => (sub2.eventName.length - sub1.eventName.length))
                 .forEach(subscription => subscription.handler.call(subscription.context));
 
             return this;
