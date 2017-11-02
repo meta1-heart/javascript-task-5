@@ -101,9 +101,24 @@ function getEmitter() {
          * @param {Object} context
          * @param {Function} handler
          * @param {Number} times – сколько раз получить уведомление
+         * @returns {Object}
          */
         several: function (event, context, handler, times) {
             console.info(event, context, handler, times);
+            if (times <= 0) {
+                this.on(event, context, handler);
+
+                return this;
+            }
+            let counter = 0;
+            this.on(event, context, () => {
+                if (counter < times) {
+                    counter++;
+                    handler.call(context);
+                }
+            });
+
+            return this;
         },
 
         /**
@@ -113,9 +128,23 @@ function getEmitter() {
          * @param {Object} context
          * @param {Function} handler
          * @param {Number} frequency – как часто уведомлять
+         * @returns {Object}
          */
         through: function (event, context, handler, frequency) {
-            console.info(event, context, handler, frequency);
+            if (frequency <= 0) {
+                this.on(event, context, handler);
+
+                return this;
+            }
+            let counter = 0;
+            this.on(event, context, () => {
+                if (counter % frequency === 0) {
+                    handler.call(context);
+                }
+                counter++;
+
+                return this;
+            });
         }
     };
 }
