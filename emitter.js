@@ -104,7 +104,6 @@ function getEmitter() {
          * @returns {Object}
          */
         several: function (event, context, handler, times) {
-            console.info(event, context, handler, times);
             if (times <= 0) {
                 this.on(event, context, handler);
 
@@ -142,9 +141,9 @@ function getEmitter() {
                     handler.call(context);
                 }
                 counter++;
-
-                return this;
             });
+
+            return this;
         }
     };
 }
