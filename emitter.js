@@ -22,18 +22,15 @@ function createNamespace(event) {
  * @param {String} event - Событие
  * @returns {Array}
  */
-function getEventsNames(event) {
-    let eventsNames = [];
-    let splitedEvents = event.split('.');
-    splitedEvents.pop();
-    let ev = splitedEvents[0] + '.';
-    eventsNames.push(ev);
-    for (let i = 1; i < splitedEvents.length; i++) {
-        ev += splitedEvents[i] + '.';
-        eventsNames.push(ev);
-    }
+function getEventNamespaces(event) {
+    let eventsNames = event.split('.');
+    let prefix = '';
 
-    return eventsNames;
+    return eventsNames.map(name => {
+        prefix += createNamespace(name);
+
+        return prefix;
+    });
 }
 
 /**
@@ -54,7 +51,7 @@ function getEmitter() {
          */
         on: function (event, context, handler) {
             subscriptions.push({
-                eventName: createNamespace(event),
+                namespace: createNamespace(event),
                 context: context,
                 handler: handler
             });
@@ -70,10 +67,10 @@ function getEmitter() {
          */
         off: function (event, context) {
             let eventNamespace = createNamespace(event);
-            subscriptions = subscriptions.filter(subscription => (
-                !(subscription.eventName.startsWith(eventNamespace)) ||
-                (context !== subscription.context)
-            ));
+            subscriptions = subscriptions.filter(subscription =>
+                !(subscription.namespace.startsWith(eventNamespace) &&
+                (context === subscription.context))
+            );
 
             return this;
         },
@@ -84,11 +81,9 @@ function getEmitter() {
          * @returns {Object}
          */
         emit: function (event) {
-            let eventName = createNamespace(event);
-            let eventsNames = getEventsNames(eventName);
-            subscriptions.filter(subscription => eventsNames
-                .includes(subscription.eventName))
-                .sort((sub1, sub2) => (sub2.eventName.length - sub1.eventName.length))
+            let eventsNames = getEventNamespaces(event);
+            subscriptions.filter(subscription => eventsNames.includes(subscription.namespace))
+                .sort((sub1, sub2) => (sub2.namespace.length - sub1.namespace.length))
                 .forEach(subscription => subscription.handler.call(subscription.context));
 
             return this;
@@ -105,9 +100,8 @@ function getEmitter() {
          */
         several: function (event, context, handler, times) {
             if (times <= 0) {
-                this.on(event, context, handler);
 
-                return this;
+                return this.on(event, context, handler);
             }
             let counter = 0;
             this.on(event, context, () => {
@@ -116,6 +110,7 @@ function getEmitter() {
                     handler.call(context);
                 }
             });
+            counter = 0;
 
             return this;
         },
@@ -131,9 +126,8 @@ function getEmitter() {
          */
         through: function (event, context, handler, frequency) {
             if (frequency <= 0) {
-                this.on(event, context, handler);
 
-                return this;
+                return this.on(event, context, handler);
             }
             let counter = 0;
             this.on(event, context, () => {
@@ -142,6 +136,7 @@ function getEmitter() {
                 }
                 counter++;
             });
+            counter = 0;
 
             return this;
         }
