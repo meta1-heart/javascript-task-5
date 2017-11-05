@@ -68,8 +68,10 @@ function getEmitter() {
         off: function (event, context) {
             let eventNamespace = createNamespace(event);
             subscriptions = subscriptions.filter(subscription =>
-                !(subscription.namespace.startsWith(eventNamespace) &&
-                (context === subscription.context))
+                !(
+                    subscription.namespace.startsWith(eventNamespace) &&
+                context === subscription.context
+                )
             );
 
             return this;
@@ -110,7 +112,6 @@ function getEmitter() {
                     handler.call(context);
                 }
             });
-            counter = 0;
 
             return this;
         },
