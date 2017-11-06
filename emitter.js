@@ -70,7 +70,7 @@ function getEmitter() {
             subscriptions = subscriptions.filter(subscription =>
                 !(
                     subscription.namespace.startsWith(eventNamespace) &&
-                context === subscription.context
+                    context === subscription.context
                 )
             );
 
@@ -106,14 +106,13 @@ function getEmitter() {
                 return this.on(event, context, handler);
             }
             let counter = 0;
-            this.on(event, context, () => {
+
+            return this.on(event, context, () => {
                 if (counter < times) {
                     counter++;
                     handler.call(context);
                 }
             });
-
-            return this;
         },
 
         /**
@@ -131,15 +130,14 @@ function getEmitter() {
                 return this.on(event, context, handler);
             }
             let counter = 0;
-            this.on(event, context, () => {
+
+            return this.on(event, context, () => {
                 if (counter % frequency === 0) {
                     handler.call(context);
+                    counter = 0;
                 }
                 counter++;
             });
-            counter = 0;
-
-            return this;
         }
     };
 }
